@@ -1,0 +1,21 @@
+npx shadcn@latest init -d
+
+npx shadcn@latest add button card alert-dialog badge dialog accordion input select skeleton alert radio-group drawer
+  
+ npm install react-icons
+npm install axios
+npm install react-youtube
+npm install @google/generative-ai
+npm install jspdf
+npm install docx
+npm install file-saver
+npm install react-webcam
+npm install react-hook-speech-to-text
+npm install react-toastify
+npm install react-youtube
+npm i react-instagram-embed
+npx shadcn@latest add progress
+npm install recharts
+npm i react-text-to-speech
+npm install react-syntax-highlighter
+
