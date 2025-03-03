@@ -2,7 +2,6 @@
 import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
 
-// Dynamically import components
 const componentMap = {
   DepartmentJobRoles: dynamic(() =>
     import("@/app/[p]/components/DepartmentJobs")
@@ -15,12 +14,11 @@ const ParamsPage = () => {
   const searchParams = useSearchParams();
   const page_name = searchParams.get("page");
   const Component = componentMap[page_name];
-
-  if (!Component) {
-    return <p>Page not found</p>;
-  }
-
-  return <Component />;
+  return (
+    <>
+      <Component />
+    </>
+  );
 };
 
 export default ParamsPage;
