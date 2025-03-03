@@ -61,7 +61,7 @@ const SelectionPage = () => {
                 <p className="text-base">
                   This is an example paragraph. You can select any part of this
                   text, and it will be logged in the console. Try selecting a
-                  word or phrase, and check your browser's developer console to
+                  word or phrase, and check your browser&apos;s developer console to
                   see the selected text.
                 </p>
               </HoverCardTrigger>

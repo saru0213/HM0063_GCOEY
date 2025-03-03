@@ -747,7 +747,7 @@ const CoursePage = () => {
                             }}
                             className="flex gap-2 bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-lg"
                           >
-                            Let's Start 🚀
+                            Let&apos;s Start 🚀
                           </Button>
                         </div>
                       )}
