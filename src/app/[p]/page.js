@@ -11,18 +11,9 @@ const componentMap = {
   MoreInfoRole: dynamic(() => import("@/app/[p]/components/MoreInfoRole")),
 };
 
-// Predefine static params
-export async function generateStaticParams() {
-  return [
-    { p: "DepartmentJobRoles" },
-    { p: "RoleRoadMap" },
-    { p: "MoreInfoRole" },
-  ]; // Update with valid params
-}
-
-const ParamsPage = ({ params }) => {
+const ParamsPage = () => {
   const searchParams = useSearchParams();
-  const page_name = searchParams.get("page") || params.p;
+  const page_name = searchParams.get("page");
   const Component = componentMap[page_name];
 
   if (!Component) {
