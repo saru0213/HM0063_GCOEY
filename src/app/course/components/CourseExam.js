@@ -147,7 +147,7 @@ const CourseExam = ({ exam, topicName, totalTime = 30 * 60 }) => {
             </div>
             {timeRemaining === 0 && (
               <p className="text-red-600 font-medium mb-4">
-                Time's up! Exam automatically submitted.
+                Time&apos;s up! Exam automatically submitted.
               </p>
             )}
           </div>
@@ -179,7 +179,7 @@ const CourseExam = ({ exam, topicName, totalTime = 30 * 60 }) => {
 
           {score >= passingScore ? (
             <p className="text-green-600 font-semibold">
-              Congratulations! You’re on the right track—keep up the hard work!
+              Congratulations! You are on the right track—keep up the hard work!
             </p>
           ) : (
             <>

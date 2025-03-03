@@ -8,8 +8,7 @@ import { Briefcase, ChevronRight, ArrowLeft } from "lucide-react";
 const JobsRole = ({ setConform, setRole }) => {
   const [loading, setLoading] = useState(true);
   const [skills, setSkills] = useState(null);
-  const [jobRoll, setJobRoll] = useState(null);
-  // const [roadmap, setroadmap] = useState(false);
+  const [jobRoll, setJobRoll] = useState("");
 
   useEffect(() => {
     const jobs = localStorage.getItem("jobs");
@@ -25,9 +24,9 @@ const JobsRole = ({ setConform, setRole }) => {
     setLoading(false);
   }, []);
 
-  if (!skills) {
+  if (!skills || !skills.jobRoles) {
     return (
-      <div className="flex justify-center items-center h-screen ">
+      <div className="flex justify-center items-center h-screen">
         <Card className="p-8 text-center max-w-md">
           <h2 className="text-3xl font-bold mb-4 text-gray-800">
             Oops! No skills data available
@@ -36,9 +35,7 @@ const JobsRole = ({ setConform, setRole }) => {
             Please go back and select a job role to view skills.
           </p>
           <Button
-            onClick={() =>
-              (window.location.href = "/jobPreparation/departmentjobs")
-            }
+            onClick={() => (window.location.href = "/jobPreparation/departmentjobs")}
             className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full transition-colors duration-300"
           >
             <ArrowLeft className="mr-2" size={16} />
@@ -48,13 +45,15 @@ const JobsRole = ({ setConform, setRole }) => {
       </div>
     );
   }
+
   const handleRoleClick = (job) => {
     localStorage.setItem("role", job);
     setConform(true);
+    if (setRole) setRole(job);
   };
 
   return (
-    <div className="container mx-auto p-6 ">
+    <div className="container mx-auto p-6">
       <Card className="w-full max-w-4xl mx-auto shadow-xl overflow-hidden rounded-lg">
         <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white p-8">
           <div className="flex items-center space-x-4 mb-4">
@@ -67,19 +66,18 @@ const JobsRole = ({ setConform, setRole }) => {
         </CardHeader>
         <CardContent className="p-8 mt-5">
           {skills.jobRoles.map((role, index) => (
-            <div key={index} value={role.category}>
+            <div key={index}>
               <p className="text-xl font-bold mb-2 text-blue-600 mt-5">
-                {index + 1} .{role.category || ""}
+                {index + 1}. {role.category || ""}
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 {role.roles.map((job, idx) => (
                   <Card
-                    className="hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
-                    onClick={() => {
-                      handleRoleClick(job), setRole(job);
-                    }}
+                    key={`${index}-${idx}`} // Ensure unique key
+                    className="hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 cursor-pointer"
+                    onClick={() => handleRoleClick(job)}
                   >
-                    <CardContent className="p-4 flex items-center space-x-4 cursor-pointer">
+                    <CardContent className="p-4 flex items-center space-x-4">
                       <Badge
                         variant="secondary"
                         className="h-10 w-10 rounded-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-bold"

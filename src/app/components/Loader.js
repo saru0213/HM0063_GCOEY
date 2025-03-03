@@ -1,20 +1,20 @@
 import Image from "next/image";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 
 const QuestionLoader = () => {
   const [selectedDept, setSelectedDept] = useState("CS");
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
 
-  const departments = {
+  const departments = useMemo(() => ({
     CS: "Computer Science",
     CE: "Civil Engineering",
     EE: "Electrical Engineering",
     EXTC: "Electronics & Telecom",
     ME: "Mechanical Engineering",
-  };
+  }), []);
 
-  const items = {
+  const items = useMemo(() => ({
     CS: [
       {
         question: "What is React Fiber?",
@@ -93,7 +93,7 @@ const QuestionLoader = () => {
         answer: "Kelvin",
       },
     ],
-  };
+  }), []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -102,14 +102,14 @@ const QuestionLoader = () => {
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [selectedDept]);
+  }, [selectedDept, items]);
 
   return (
     <>
       <div className="flex justify-center ">
         <Image src={"/reading.gif"} alt="loader" width={100} height={100} />
       </div>
-      <div className="max-w-xl mx-auto bg-white rounded-lg shadow-sm  border-gray-200 -mt-5">
+      <div className="max-w-xl mx-auto bg-white rounded-lg shadow-sm border-gray-200 -mt-5">
         <div className="p-6">
           <div className="text-center mb-3">
             <p className="text-gray-800">

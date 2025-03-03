@@ -9,40 +9,64 @@ import LoadingDialog from "../../components/LoadingDialog";
 function McqExam({ topicName }) {
   const [examStatus, setExamStatus] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [content, setContent] = useState();
-  const localStorageContent = localStorage.getItem("content");
-  const [exam, setExam] = useState("");
+  const [content, setContent] = useState(null);
+  const [exam, setExam] = useState(null);
 
+  // Load content from localStorage
   useEffect(() => {
-    if (localStorageContent) {
-      setContent(JSON.parse(localStorageContent));
+    const storedContent = localStorage.getItem("content");
+    if (storedContent) {
+      try {
+        setContent(JSON.parse(storedContent));
+      } catch (error) {
+        console.error("Error parsing content from localStorage:", error);
+      }
     }
   }, []);
 
+  // Load exam data from localStorage
   useEffect(() => {
-    const exam = localStorage.getItem("combinedExamDate");
-    if (exam) {
-      setExam(JSON.parse(exam));
-      setExamStatus(true);
+    const storedExam = localStorage.getItem("combinedExamDate");
+    if (storedExam) {
+      try {
+        setExam(JSON.parse(storedExam));
+        setExamStatus(true);
+      } catch (error) {
+        console.error("Error parsing exam data from localStorage:", error);
+      }
     }
   }, []);
 
   const courseExam = async () => {
+    if (!content) {
+      console.error("Content is not available.");
+      return;
+    }
+
     setLoading(true);
-    const Prompt = `generate 5 mcq question by on give syllabus.include question,answer,options,explaination.syllabus :${JSON.stringify(
-      localStorageContent
-    )}.in json formate.`;
-    // alert(Prompt);
+
+    const prompt = `Generate 5 MCQ questions based on the following syllabus. Include question, answer, options, and explanation. Syllabus: ${JSON.stringify(
+      content
+    )}. Return in JSON format.`;
+
     try {
-      const result = await AiGenerateCourseMcq.sendMessage(Prompt);
+      const result = await AiGenerateCourseMcq.sendMessage(prompt);
       const responseText = await result.response.text();
-      console.log("Response Text: ", responseText);
-      const jsonreponse = JSON.parse(responseText);
-      localStorage.setItem("combinedExamDate", JSON.stringify(jsonreponse));
-      setExam(jsonreponse);
+      
+      let jsonResponse;
+      try {
+        jsonResponse = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error("Error parsing AI response:", parseError);
+        setLoading(false);
+        return;
+      }
+
+      localStorage.setItem("combinedExamDate", JSON.stringify(jsonResponse));
+      setExam(jsonResponse);
       setExamStatus(true);
     } catch (error) {
-      console.error("Error fetching chapter data: ", error);
+      console.error("Error fetching MCQ data:", error);
     } finally {
       setLoading(false);
     }
@@ -51,39 +75,26 @@ function McqExam({ topicName }) {
   return (
     <>
       {examStatus ? (
-        <>
-          <CourseExam exam={exam} topicName={topicName} />
-        </>
+        <CourseExam exam={exam} topicName={topicName} />
       ) : (
-        <>
-          <div className="bg-slate-50 p-4 md:p-8">
-            <div className="max-w-3xl mx-auto">
-              <Card className="mb-6">
-                <CardHeader>
-                  <CardTitle className="text-xl">
-                    You have completed the Chapter
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <p className="text-lg">
-                    Have you completed the exam?.Let's give it just Click on
-                    Start Exam button.
-                  </p>
-                </CardContent>
-              </Card>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  courseExam();
-                }}
-                // className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white hover:text-white hover:font-bold"
-              >
-                Start Exam
-              </Button>
-              <LoadingDialog loading={loading} />
-            </div>
+        <div className="bg-slate-50 p-4 md:p-8">
+          <div className="max-w-3xl mx-auto">
+            <Card className="mb-6">
+              <CardHeader>
+                <CardTitle className="text-xl">You have completed the Chapter</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-lg">
+                  Have you completed the exam? Let&apos;s take it! Just click on the Start Exam button.
+                </p>
+              </CardContent>
+            </Card>
+            <Button variant="outline" onClick={courseExam}>
+              Start Exam
+            </Button>
+            <LoadingDialog loading={loading} />
           </div>
-        </>
+        </div>
       )}
     </>
   );
