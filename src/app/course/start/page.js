@@ -126,157 +126,173 @@ const CoursePage = () => {
     }
     if (complete) {
       if (combinedChapterData.length - 1 === activeChapter) {
-        alert("course completed! Let's Take Final Exam!");
+        alert("Course completed! Let's Take the Final Exam!");
         setExam(0);
         setActiveChapter("");
       } else {
         setExamData(false);
         const index = activeChapter + 1;
         setActiveChapter(index);
-        localStorage.setItem("activeChapter", index);
+        if (typeof window !== "undefined") {
+          localStorage.setItem("activeChapter", index);
+        }
       }
     }
   }, [restart, complete]);
-
+  
   useEffect(() => {
-    const expandContent = localStorage.getItem("expandContent");
-    const expandindex = localStorage.getItem("expandindex");
-    if (expandContent && expandindex) {
-      setExpandContent(JSON.parse(expandContent));
-      setExpandindex(expandindex);
-    }
-    const topicName = localStorage.getItem("topicName");
-    if (topicName) {
-      setTopicName(topicName);
-    }
-    const category = localStorage.getItem("category");
-    if (category) {
-      setCategory(category);
-    }
-    const activeChapterlocal = localStorage.getItem("activeChapter");
-    if (activeChapterlocal) {
-      setActiveChapterlocal(activeChapterlocal);
-    }
-    const expandChapter = localStorage.getItem("expandChapter");
-    if (expandChapter) {
-      setExpandChapter(expandChapter);
+    if (typeof window !== "undefined") {
+      const expandContent = localStorage.getItem("expandContent");
+      const expandindex = localStorage.getItem("expandindex");
+      if (expandContent && expandindex) {
+        setExpandContent(JSON.parse(expandContent));
+        setExpandindex(expandindex);
+      }
+  
+      const topicName = localStorage.getItem("topicName");
+      if (topicName) setTopicName(topicName);
+  
+      const category = localStorage.getItem("category");
+      if (category) setCategory(category);
+  
+      const activeChapterlocal = localStorage.getItem("activeChapter");
+      if (activeChapterlocal) setActiveChapterlocal(activeChapterlocal);
+  
+      const expandChapter = localStorage.getItem("expandChapter");
+      if (expandChapter) setExpandChapter(expandChapter);
     }
   }, []);
-
+  
   useEffect(() => {
-    const cheatSheet = localStorage.getItem("cheatSheet");
-    const cheatindex = localStorage.getItem("cheatindex");
-    if (cheatSheet && cheatindex) {
-      setCheatSheet(JSON.parse(cheatSheet));
-      setCheatIndex(cheatindex);
+    if (typeof window !== "undefined") {
+      const cheatSheet = localStorage.getItem("cheatSheet");
+      const cheatindex = localStorage.getItem("cheatindex");
+      if (cheatSheet && cheatindex) {
+        setCheatSheet(JSON.parse(cheatSheet));
+        setCheatIndex(cheatindex);
+      }
     }
   }, []);
-
+  
   useEffect(() => {
-    const engagingContent = localStorage.getItem("engagingContent");
-    const TopicInterviewQuestion = localStorage.getItem(
-      "TopicInterviewQuestion"
-    );
-    const PreacticeQuestion = localStorage.getItem("PreacticeQuestion");
-
-    if (engagingContent) {
-      setEnggagingContent(JSON.parse(engagingContent));
-    }
-    if (TopicInterviewQuestion) {
-      setEnggagingContent2(JSON.parse(TopicInterviewQuestion));
-      setInterview(true);
-    }
-    if (PreacticeQuestion) {
-      setPractice(JSON.parse(PreacticeQuestion));
+    if (typeof window !== "undefined") {
+      const engagingContent = localStorage.getItem("engagingContent");
+      const TopicInterviewQuestion = localStorage.getItem("TopicInterviewQuestion");
+      const PreacticeQuestion = localStorage.getItem("PreacticeQuestion");
+  
+      if (engagingContent) setEnggagingContent(JSON.parse(engagingContent));
+      if (TopicInterviewQuestion) {
+        setEnggagingContent2(JSON.parse(TopicInterviewQuestion));
+        setInterview(true);
+      }
+      if (PreacticeQuestion) setPractice(JSON.parse(PreacticeQuestion));
     }
   }, []);
-
+  
   useEffect(() => {
-    setCheat(false), setInterview(false), setView(false), setEnggaging(false);
-    if (!combinedChapterData) {
+    setCheat(false);
+    setInterview(false);
+    setView(false);
+    setEnggaging(false);
+    if (!combinedChapterData && typeof window !== "undefined") {
       window.location.replace("/course");
     }
   }, []);
-
+  
   const takeExam = async (chapterName) => {
-    console.log(chapterName); // Use the parameter instead of state
-    setLoading((prevState) => ({
-      ...prevState,
-      exam: true,
-    }));
-    const prompt = `generate 10 mcq for exam on chapter ${chapterName} of course ${topicName}, include question, answer, options, explanation. In JSON format.`;
+    console.log(chapterName);
+    setLoading((prevState) => ({ ...prevState, exam: true }));
+  
+    const prompt = `Generate 10 MCQs for an exam on chapter ${chapterName} of course ${topicName}. Include question, answer, options, explanation in JSON format.`;
+  
     try {
       const result = await AiChapterExam.sendMessage(prompt);
-      const responseText = await result.response.text();
+      const responseText = await result.response.text(); // **Fix missing await**
       const parsedResult = JSON.parse(responseText);
+  
       setChapterExam(parsedResult);
-      localStorage.setItem("chapterExam", JSON.stringify(parsedResult));
+      if (typeof window !== "undefined") {
+        localStorage.setItem("chapterExam", JSON.stringify(parsedResult));
+      }
       console.log(parsedResult);
       setExamData(true);
     } catch (error) {
       console.error(error);
     } finally {
-      setLoading((prevState) => ({
-        ...prevState,
-        exam: false,
-      }));
+      setLoading((prevState) => ({ ...prevState, exam: false }));
       setRestart(false);
     }
   };
-
+  
   const handleExpandChapter = async (topicName, index) => {
     if (index !== expandindex) {
-      setLoading((prevState) => ({
-        ...prevState,
-        chapter: true,
-      }));
-      prompt = `explain the concept in details ${combinedChapterData[activeChapter].content.content[index].heading} of course:${topicName}.include title:title of content.description:detailed descritpion.code(if applicable):code example (<precode> formate ).in json formate`;
+      setLoading((prevState) => ({ ...prevState, chapter: true }));
+  
+      const prompt = `Explain in detail the concept "${combinedChapterData[activeChapter].content.content[index].heading}" of course: ${topicName}. Include title, description, code (if applicable) in JSON format.`;
+  
       try {
         const result = await Aiexpand.sendMessage(prompt);
-        const responseText = await result.response.text();
+        const responseText = await result.response.text(); // **Fix missing await**
         const parsedResult = JSON.parse(responseText);
-        console.log(parsedResult);
-        setLoading(false);
+  
         setExpandContent(parsedResult);
-        localStorage.setItem("expandContent", JSON.stringify(parsedResult));
-        localStorage.setItem("expandindex", index);
-        localStorage.setItem("expandChapter", activeChapter);
+        if (typeof window !== "undefined") {
+          localStorage.setItem("expandContent", JSON.stringify(parsedResult));
+          localStorage.setItem("expandindex", index);
+          localStorage.setItem("expandChapter", activeChapter);
+        }
         setExpand(false);
         setExpandindex(index);
-        localStorage.setItem("expandindex", index);
       } catch (error) {
         console.error(error);
       } finally {
-        setLoading((prevState) => ({
-          ...prevState,
-          chapter: false,
-        }));
+        setLoading((prevState) => ({ ...prevState, chapter: false }));
       }
     }
   };
-
   const handleVideoChange = async (activeChapter) => {
-    const videoResponse = await service.getVideos(
-      `${combinedChapterData[activeChapter]?.chapterName}`
-    );
-    const videoId = videoResponse[0]?.id?.videoId;
-    setVideoId(videoId);
+    if (!combinedChapterData?.[activeChapter]?.chapterName) {
+      console.error("Invalid chapter selected.");
+      return;
+    }
+  
+    try {
+      const videoResponse = await service.getVideos(
+        combinedChapterData[activeChapter]?.chapterName
+      );
+  
+      const videoId = videoResponse?.[0]?.id?.videoId || null;
+      setVideoId(videoId);
+  
+      if (!videoId) {
+        console.warn("No video found for this chapter.");
+      }
+    } catch (error) {
+      console.error("Error fetching video:", error);
+    }
   };
-
+  
   const createCheatSheet = async () => {
     setLoading((prevState) => ({
       ...prevState,
       cheatSheet: true,
     }));
-    const prompt = `from interview purspective create concise,organized,and purpose oriented cheat sheet for chapter ${combinedChapterData[activeChapter].chapterName} of course:${topicName}.include headind:content heading,explanation,code (<pre> formate) if applicable,tips.in json format.`;
+  
+    const prompt = `from interview perspective create concise, organized, and purpose-oriented cheat sheet for chapter ${combinedChapterData[activeChapter].chapterName} of course: ${topicName}. Include heading: content heading, explanation, code (<pre> format) if applicable, tips. In JSON format.`;
+  
     try {
       const result = await AiCheatSheet.sendMessage(prompt);
       const responseText = await result.response.text();
       const parsedResult = JSON.parse(responseText);
+      
       console.log(parsedResult);
       setCheatSheet(parsedResult);
-      localStorage.setItem("cheatSheet", JSON.stringify(parsedResult));
-      localStorage.setItem("cheatindex", activeChapter);
+  
+      if (typeof window !== "undefined") {
+        localStorage.setItem("cheatSheet", JSON.stringify(parsedResult));
+        localStorage.setItem("cheatindex", activeChapter);
+      }
+      
       setCheatIndex(activeChapter);
       setCheat(true);
     } catch (error) {
@@ -288,20 +304,26 @@ const CoursePage = () => {
       }));
     }
   };
-
+  
   const handlePreacticeQuestion = async () => {
     setLoading((prevState) => ({
       ...prevState,
       practice: true,
     }));
+  
     const level = "beginner";
-    const prompt = `Generate 5 ${level}-level practice questions for a ${topicName} programming course, focusing on fundamental concepts related to ${combinedChapterData[activeChapter].chapterName}, with clear problem statements, and concise solution outlines, tailored to facilitate effective learning and assessment.in json formate.`;
+    const prompt = `Generate 5 ${level}-level practice questions for a ${topicName} programming course, focusing on fundamental concepts related to ${combinedChapterData[activeChapter].chapterName}, with clear problem statements, and concise solution outlines, tailored to facilitate effective learning and assessment. In JSON format.`;
+  
     try {
       const result = await AiCodingRoundQuestion.sendMessage(prompt);
-      const responseText = result.response.text();
+      const responseText = await result.response.text();
       console.log(responseText);
       const json = JSON.parse(responseText);
-      localStorage.setItem("PreacticeQuestion", JSON.stringify(json));
+  
+      if (typeof window !== "undefined") {
+        localStorage.setItem("PreacticeQuestion", JSON.stringify(json));
+      }
+      
       setPractice(json);
       setView(true);
     } catch (error) {
@@ -313,18 +335,24 @@ const CoursePage = () => {
       }));
     }
   };
-
+  
   const learnWithFun = async () => {
     setLoading((prevState) => ({
       ...prevState,
       learnWithFunctions: true,
     }));
-    const prompt = `chapterName: ${combinedChapterData[activeChapter].chapterName}. chapteDescription: ${combinedChapterData[activeChapter].content.description}. on the basic of give content generate engaging content like 10 match the pair, 10 odd one out,10 flashcard.in json formate.`;
+  
+    const prompt = `chapterName: ${combinedChapterData[activeChapter].chapterName}. chapterDescription: ${combinedChapterData[activeChapter].content.description}. On the basis of given content, generate engaging content like 10 match the pair, 10 odd one out, 10 flashcards. In JSON format.`;
+  
     try {
       const result = await AiEngagingContent.sendMessage(prompt);
       const responseText = await result.response.text();
       const json = JSON.parse(responseText);
-      localStorage.setItem("engagingContent", JSON.stringify(json));
+  
+      if (typeof window !== "undefined") {
+        localStorage.setItem("engagingContent", JSON.stringify(json));
+      }
+      
       console.log(json);
       setEnggagingContent(json);
       setEnggaging(true);
@@ -337,18 +365,24 @@ const CoursePage = () => {
       }));
     }
   };
-
+  
   const InterviewQuestion = async () => {
     setLoading((prevState) => ({
       ...prevState,
       interview: true,
     }));
-    const prompt2 = `Design a set of five interview-style questions on the topic of ${combinedChapterData[activeChapter].chapterName} in ${topicName}, focusing on common use cases, best practices, and edge cases. Each question should be concise, clear, and objective. Provide the questions and ideal answers in JSON format.`;
+  
+    const prompt2 = `Design a set of five interview-style questions on the topic of ${combinedChapterData?.[activeChapter]?.chapterName} in ${topicName}, focusing on common use cases, best practices, and edge cases. Each question should be concise, clear, and objective. Provide the questions and ideal answers in JSON format.`;
+  
     try {
       const result2 = await AiEngagingContent.sendMessage(prompt2);
       const responseText2 = await result2.response.text();
       const json2 = JSON.parse(responseText2);
-      localStorage.setItem("TopicInterviewQuestion", JSON.stringify(json2));
+      
+      if (typeof window !== "undefined") {
+        localStorage.setItem("TopicInterviewQuestion", JSON.stringify(json2));
+      }
+  
       setEnggagingContent2(json2);
       setInterview(true);
     } catch (error) {
@@ -360,24 +394,35 @@ const CoursePage = () => {
       }));
     }
   };
-
+  
   const handleTranslate = async (index) => {
     setLoading((prevState) => ({
       ...prevState,
       translate: true,
     }));
+  
     setTranslate("");
-    const text =
-      combinedChapterData?.[activeChapter]?.content?.content?.[index]?.text;
     setTranslateIndex(index);
-    const prompt = `Translate the following text from English to ${language}: ${text}.in json formate.`;
+  
+    const text = combinedChapterData?.[activeChapter]?.content?.content?.[index]?.text;
+  
+    if (!text) {
+      console.error("No text found for translation.");
+      setLoading((prevState) => ({
+        ...prevState,
+        translate: false,
+      }));
+      return;
+    }
+  
+    const prompt = `Translate the following text from English to ${language}: ${text}. Provide the response in JSON format.`;
+  
     try {
       const result = await AiTraslator.sendMessage(prompt);
-      const responseText = result.response.text();
+      const responseText = await result.response.text();
       console.log(responseText);
       const json = JSON.parse(responseText);
       setTranslate(json);
-      // console.log(prompt);
     } catch (error) {
       console.error(error);
     } finally {
@@ -387,12 +432,18 @@ const CoursePage = () => {
       }));
     }
   };
-
+  
   const handleMoreInfo = async () => {
-    const prompt = `explain the concept of term ${selection} in ${topicName}. only if the term is technical term related to concept other wise just translate. include term ,technical: true/false, explanation, summary translate term in ${language}.in json formate.`;
+    if (!selection) {
+      console.error("No term selected for more information.");
+      return;
+    }
+  
+    const prompt = `Explain the concept of the term '${selection}' in ${topicName}. If the term is technical, include the term, a technical: true/false flag, an explanation, and a summary. If it's not technical, just provide a translation. Translate the term into ${language}. Provide the response in JSON format.`;
+  
     try {
       const result = await AiTermMoreInfo.sendMessage(prompt);
-      const responseText = result.response.text();
+      const responseText = await result.response.text();
       const json = JSON.parse(responseText);
       setMoreInfo(json);
       console.log(responseText);
@@ -400,7 +451,7 @@ const CoursePage = () => {
       console.error(error);
     }
   };
-
+  
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
