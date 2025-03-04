@@ -8,12 +8,14 @@ import ProgressSteps from "./components/ProgressStep";
 
 const CreateCoursePage = () => {
   const [activeStep, setActiveStep] = useState(1);
-  const [content, setContent] = useState();
-  const localStorageContent = localStorage.getItem("content");
+  const [content, setContent] = useState(null);
 
   useEffect(() => {
-    if (localStorageContent) {
-      setContent(JSON.parse(localStorageContent));
+    if (typeof window !== "undefined") {
+      const localStorageContent = localStorage.getItem("content");
+      if (localStorageContent) {
+        setContent(JSON.parse(localStorageContent));
+      }
     }
   }, []);
 
@@ -22,7 +24,9 @@ const CreateCoursePage = () => {
   };
 
   const handleBack = () => {
-    localStorage.removeItem("content");
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("content");
+    }
     setActiveStep((prev) => Math.max(prev - 1, 1));
   };
 
@@ -52,7 +56,7 @@ const CreateCoursePage = () => {
       {/* Progress Steps */}
       <ProgressSteps activeStep={activeStep} />
 
-      {activeStep == 1 && (
+      {activeStep === 1 && (
         <BasicData
           activeStep={activeStep}
           handleBack={handleBack}
@@ -61,7 +65,7 @@ const CreateCoursePage = () => {
         />
       )}
 
-      {activeStep == 2 && (
+      {activeStep === 2 && (
         <EditCourse
           content={content}
           activeStep={activeStep}
